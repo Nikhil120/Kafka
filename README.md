@@ -48,3 +48,33 @@ In Kafka Cluster, there are multiple brokers and they have multiple topics and p
 
 If any of the broker consists of partition leader gets down, then one of its replia will be assigned as new leader.
 For Example - In the abouve diagram, if Broker 102 get down, Broker 103 Partition 1 Topic A will be assigned as new leader and then new replicas are created in sync of new leader replica.
+
+
+## Producers Acknowledgement
+
+Producers can choose to receive the following anknowledgement on data writes:
+1. acks = 0 : Producers won't wait for acknowledgement. It may lead to data loss.
+2. acks = 1 : Producers will wait for the leader anknowledgement. It may lead to limited Data Loss
+3. acks = all : Producers will wait for the leader and all the replica's acknowledgement. There is no data loss.
+
+
+## Producers Message Key
+
+Producer may choose to send key with the message. A key can be a string, number, etc.
+If key is null, data is send using Round Robin algorithm i.e. Broker101, then Broker102, then Broker103 and so on.
+If key is send then all the messages for that key will always go to the same partition(except for case if number of partition is changed in-between)
+
+
+## Comsumers Offset
+
+Kafka stores the offsets at which the consumer group has been reading. A consumer group consists of multiple consumers and each consumer in the group read from exclusive partitions.
+These offets are stored in Kafka topic named __consumer_offsets.
+When a consumer in a group has processed data received from Kafka, it updates the offset value in the Kafka topic. It is done so because if a consumer dies, it will be albe to read back from where it left off.
+
+
+## Consumers Delivery Semantics
+
+Comsumer can choose when to commit offsets. These are of 3 types:
+1. At Most Once : Offset is commited as soon as the message is received. If consumer is unable to process message, then that message cannot be read again and it will loose the message.
+2. At Least Once : Offset is committed when the message is processed by the consumer. If consumer is unable to process the message, the message can be read again. It might also led to processing of same message twice.
+3. Exactly Once : It is achievable using Kafka Stream API or Apache Spark.
